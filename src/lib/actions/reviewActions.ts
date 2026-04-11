@@ -73,14 +73,10 @@ export async function updateReview(
   input: UpdateReviewInput
 ): Promise<Review> {
   const sql = getSql();
-  // Build a partial update: only touch columns that were supplied
-  const updates: Partial<Pick<Review, "rating" | "title" | "body">> = {
-    ...input,
-  };
 
   const [updated] = await sql<Review[]>`
     UPDATE reviews
-    SET ${sql(updates)}, updated_at = NOW()
+    SET ${sql(input)}, updated_at = NOW()
     WHERE id = ${reviewId}
       AND user_id = ${userId}
     RETURNING *

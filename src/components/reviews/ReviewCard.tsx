@@ -13,10 +13,13 @@ export default function ReviewCard({ review }: ReviewCardProps) {
         </span>
         <span
           className="flex items-center gap-0.5 text-yellow-500 text-sm"
+          role="img"
           aria-label={`Rated ${review.rating} out of 5 stars`}
         >
-          {"★".repeat(review.rating)}
-          {"☆".repeat(5 - review.rating)}
+          <span aria-hidden="true">
+            {"★".repeat(review.rating)}
+            {"☆".repeat(5 - review.rating)}
+          </span>
         </span>
       </div>
       <h3 className="mt-2 font-semibold text-gray-900">{review.title}</h3>

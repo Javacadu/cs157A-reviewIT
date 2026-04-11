@@ -5,6 +5,8 @@ import postgres from "postgres";
  *
  * DATABASE_URL is validated lazily (on first query) so that this module can be
  * imported during build-time static analysis without requiring the env variable.
+ * The variable IS required at runtime — any Server Action or Server Component
+ * that touches the database will throw a descriptive error if it is missing.
  *
  * In development, Next.js hot-reloads modules, so we attach the pool to the
  * Node.js global object to prevent creating a new pool on every reload.

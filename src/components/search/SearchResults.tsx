@@ -8,12 +8,15 @@ interface SearchResultsProps {
 
 export default async function SearchResults({ query }: SearchResultsProps) {
   const sql = getSql();
+  // postgres.js safely parameterizes all interpolated values, so the wildcard
+  // characters here are part of the bound parameter, not raw SQL.
+  const pattern = `%${query}%`;
   const items = await sql<ItemWithCategory[]>`
     SELECT i.*, c.name AS category_name
     FROM items i
     JOIN categories c ON c.id = i.category_id
-    WHERE i.name ILIKE ${"%" + query + "%"}
-       OR i.description ILIKE ${"%" + query + "%"}
+    WHERE i.name ILIKE ${pattern}
+       OR i.description ILIKE ${pattern}
     ORDER BY i.name
     LIMIT 50
   `;
