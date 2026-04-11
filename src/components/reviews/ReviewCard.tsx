@@ -11,7 +11,10 @@ export default function ReviewCard({ review }: ReviewCardProps) {
         <span className="text-sm font-medium text-gray-700">
           {review.username}
         </span>
-        <span className="flex items-center gap-0.5 text-yellow-500 text-sm">
+        <span
+          className="flex items-center gap-0.5 text-yellow-500 text-sm"
+          aria-label={`Rated ${review.rating} out of 5 stars`}
+        >
           {"★".repeat(review.rating)}
           {"☆".repeat(5 - review.rating)}
         </span>
