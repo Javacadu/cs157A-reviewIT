@@ -14,8 +14,20 @@ A universal review platform where users can rate, review, and categorize anythin
 
 - Node.js 18+
 - PostgreSQL (local or cloud)
+## Setup(setup script)
 
-## Setup
+Run the setup script to get started:
+```bash
+./scripts/setup.sh
+This script:
+- Verifies Node.js 18+ is installed
+- Checks for PostgreSQL client
+- Creates .env.local from .env.local.example
+- Installs npm dependencies
+- Prints next steps for database setup
+```
+
+## Setup(manual)
 
 ### 1. Clone and install
 
