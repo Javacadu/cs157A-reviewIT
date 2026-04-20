@@ -109,6 +109,10 @@ src/
   types/         # TypeScript types
 ```
 
+## Contributing
+
+See [CONVENTIONS.md](./CONVENTIONS.md) for coding standards, component patterns, and development guidelines.
+
 ## Features
 
 - Search items by name or description

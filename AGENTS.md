@@ -36,6 +36,23 @@ npm run lint     # ESLint
 
 Config is in `src/app/globals.css` via `@import "tailwindcss"` and CSS custom properties (`@theme inline`). Do not create or modify `tailwind.config.js`.
 
+## Styling Rules
+
+- Use Tailwind CSS classes for all styling (no external CSS files)
+- Prefer utility classes over custom CSS: `className="text-xl font-bold"` not `<style>.title</style>`
+- Follow existing patterns in `globals.css` for custom properties (CSS variables)
+- Use CSS custom properties from `@theme inline` for colors: `text-foreground`, `bg-background`
+- Keep responsive design in mind: use `md:`, `lg:` prefixes for larger screens
+
+## Component Rules
+
+- Components live in `src/components/` organized by feature (e.g., `reviews/`, `search/`)
+- Export components as default: `export default function ComponentName()`
+- Use TypeScript interfaces for props (see existing components for examples)
+- Server Components are default; add `"use client"` only when you need interactivity (onClick, useState, etc.)
+- Use `import type` for type-only imports
+- Import paths use `@/*` alias: `import { Something } from "@/components/foo"`
+
 ## Missing features (not yet implemented)
 
 - Authentication (`/auth` page shows placeholder)

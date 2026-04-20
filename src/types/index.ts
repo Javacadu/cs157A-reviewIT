@@ -43,3 +43,9 @@ export interface ReviewWithUser extends Review {
 export interface ItemWithCategory extends Item {
   category_name: string;
 }
+
+// Full item details with category name and creator username
+export interface ItemWithDetails extends Item {
+  category_name: string;
+  creator_username: string;
+}
