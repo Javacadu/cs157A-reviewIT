@@ -17,6 +17,12 @@ npm run start    # Production server
 npm run lint     # ESLint
 ```
 
+## Git Commands
+
+Git commands are allowed when explicitly requested by the human. For example:
+- "commit and push these changes" - run `git add`, `git commit`, `git push`
+- "create a PR" - run `gh pr create`
+
 ## Database
 
 - Schema: `src/lib/db/schema.sql`
