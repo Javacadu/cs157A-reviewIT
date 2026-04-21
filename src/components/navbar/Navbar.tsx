@@ -1,8 +1,22 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
+import { logout } from "@/lib/actions/authActions";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface NavbarUser {
+  userId: number;
+  username: string;
+}
+
+export interface NavbarProps {
+  user?: NavbarUser | null;
+}
 
 const STORAGE_KEY = "navHistory";
 
@@ -23,31 +37,51 @@ function saveHistory(history: string[]) {
   sessionStorage.setItem(STORAGE_KEY, JSON.stringify(history));
 }
 
-export default function Navbar() {
+// Always initialize with "/" to avoid hydration mismatch
+// The actual history is loaded in useEffect (client-only)
+function initHistory(): string[] {
+  return ["/"];
+}
+
+export default function Navbar({ user }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [history, setHistory] = useState<string[]>(() => getHistory());
+  const [history, setHistory] = useState<string[]>(() => initHistory());
+  const historyRef = useRef<string[]>(history);
 
-  // useEffect is the sole source of truth for history management
-  // This handles: nav clicks, browser back/forward, direct URL access
+  // Keep ref in sync with state
   useEffect(() => {
-    const stored = getHistory();
-    const lastPath = stored[stored.length - 1];
+    historyRef.current = history;
+  }, [history]);
 
-    if (lastPath !== pathname) {
-      const pageIndex = stored.indexOf(pathname);
-      if (pageIndex !== -1) {
-        // Going back - truncate forward history
-        const newHistory = stored.slice(0, pageIndex + 1);
+  // Sync history when pathname changes (non-blocking)
+  // Uses requestIdleCallback pattern via setTimeout to avoid setState in effect
+  useEffect(() => {
+    const updateHistory = () => {
+      const stored = getHistory();
+      const lastPath = stored[stored.length - 1];
+
+      if (lastPath !== pathname) {
+        const pageIndex = stored.indexOf(pathname);
+        let newHistory: string[];
+
+        if (pageIndex !== -1) {
+          // Going back - truncate forward history
+          newHistory = stored.slice(0, pageIndex + 1);
+        } else {
+          // New page - add to history
+          newHistory = [...stored, pathname];
+        }
+
         saveHistory(newHistory);
-        setHistory(newHistory);
-      } else {
-        // New page - add to history
-        const newHistory = [...stored, pathname];
-        saveHistory(newHistory);
+        historyRef.current = newHistory;
         setHistory(newHistory);
       }
-    }
+    };
+
+    // Defer to next tick to avoid setState in effect
+    const timeoutId = setTimeout(updateHistory, 0);
+    return () => clearTimeout(timeoutId);
   }, [pathname]);
 
   const hasHistory = history.length > 1;
@@ -64,6 +98,17 @@ export default function Navbar() {
     }
   }, [history, router]);
 
+  // Handle logout
+  const handleLogout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Logout failed:", err);
+      window.location.href = "/";
+    }
+  }, []);
+
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
       <div className="flex items-center gap-6">
@@ -78,8 +123,9 @@ export default function Navbar() {
           className={`text-sm px-3 py-1.5 rounded border transition-colors ${
             hasHistory
               ? "border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-              : "border-gray-200 text-gray-300 cursor-not-allowed"
-          }`}
+              : "border-gray-200 text-gray-300"
+          } ${hasHistory ? "" : "cursor-not-allowed"}`}
+          suppressHydrationWarning
           aria-label="Go back to previous page"
         >
           ← Back
@@ -93,9 +139,23 @@ export default function Navbar() {
         <Link href="/search" className="hover:text-blue-600">
           Browse
         </Link>
-        <Link href="/auth" className="hover:text-blue-600">
-          Sign in
-        </Link>
+        {user ? (
+          <>
+            <span className="text-gray-900 font-medium">
+              Welcome, {user.username}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="text-red-600 hover:text-red-700 font-medium"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <Link href="/auth" className="hover:text-blue-600">
+            Sign in
+          </Link>
+        )}
       </nav>
     </header>
   );
