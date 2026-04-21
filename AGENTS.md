@@ -36,6 +36,7 @@ Git commands are allowed when explicitly requested by the human. For example:
 - Server Actions: `src/lib/actions/reviewActions.ts` (marked `"use server"`)
 - Path alias: `@/*` → `./src/*`
 - Routes: `/` (home), `/search` (browse), `/item/[id]`, `/auth`
+- Components: `@/components/navbar/Navbar`, `@/components/search/SearchBar`, `@/components/reviews/ReviewList`
 - Types: `src/types/index.ts` (User, Item, Category, Review, plus enriched join types)
 
 ## Tailwind v4 note
@@ -52,12 +53,34 @@ Config is in `src/app/globals.css` via `@import "tailwindcss"` and CSS custom pr
 
 ## Component Rules
 
-- Components live in `src/components/` organized by feature (e.g., `reviews/`, `search/`)
+- Components live in `src/components/` organized by feature (e.g., `reviews/`, `search/`, `navbar/`)
 - Export components as default: `export default function ComponentName()`
 - Use TypeScript interfaces for props (see existing components for examples)
 - Server Components are default; add `"use client"` only when you need interactivity (onClick, useState, etc.)
 - Use `import type` for type-only imports
 - Import paths use `@/*` alias: `import { Something } from "@/components/foo"`
+
+### Persistent Layout Components
+
+For components that persist across all pages (like navbar):
+
+1. **Create the component** in `src/components/<feature>/ComponentName.tsx`
+2. **Add "use client"** since it needs client-side interactivity
+3. **Use usePathname** from `next/navigation` to track route changes
+4. **Add to layout.tsx** inside `<body>` to persist across pages
+5. **For history/back navigation:** prefer `router.back()` over custom history stacks — delegates to browser native history
+
+Example pattern for navbar:
+```tsx
+"use client";
+import { usePathname } from "next/navigation";
+
+export default function Navbar() {
+  const pathname = usePathname();
+  // useEffect to sync state when pathname changes
+  useEffect(() => { ... }, [pathname]);
+}
+```
 
 ## Missing features (not yet implemented)
 
