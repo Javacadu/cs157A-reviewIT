@@ -41,6 +41,7 @@ Quick reference for contributing to this project.
 src/
   app/              # Pages (page.tsx files)
   components/       # Reusable UI components
+    navbar/         # Navigation components
     reviews/
     search/
   lib/
@@ -81,6 +82,14 @@ Add `"use client"` at the top of the file when you need:
 - `useState`, `useEffect`, or other hooks
 - `onClick`, `onChange`, or event handlers
 - Browser APIs
+
+### Persistent layout components
+For components that persist across all pages (e.g., navbar):
+- Create in `src/components/<feature>/`
+- Add to `src/app/layout.tsx` inside the `<body>` tag
+- Use `usePathname` from `next/navigation` to track current route
+- Use `sessionStorage` for client-side state that persists across navigation
+- For history management, prefer using browser-native `router.back()` over custom history stacks
 
 ## Setup Checklist
 
