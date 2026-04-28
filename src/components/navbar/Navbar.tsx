@@ -141,6 +141,9 @@ export default function Navbar({ user }: NavbarProps) {
         </Link>
         {user ? (
           <>
+            <Link href="/item/new" className="hover:text-blue-600">
+              Add Item
+            </Link>
             <span className="text-gray-900 font-medium">
               Welcome, {user.username}
             </span>
