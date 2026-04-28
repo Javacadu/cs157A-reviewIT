@@ -234,7 +234,7 @@ export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
 
   return (
-    <main className="mx-auto max-w-md px-4 py-10">
+    <main className="mx-auto max-w-md px-4 py-10 bg-white">
       <h1 className="mb-6 text-center text-3xl font-bold text-[var(--foreground)]">
         {mode === "login" ? "Welcome Back" : "Create Account"}
       </h1>

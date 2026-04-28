@@ -19,6 +19,7 @@ Quick reference for contributing to this project.
 - **Use CSS variables** from `@theme inline` — `text-foreground` instead of hardcoded colors
 - **Responsive prefix** — `md:text-2xl` for desktop, `sm:` for tablet
 - **No external CSS files** — all styling in Tailwind classes
+- **Always add explicit background** — use `bg-white` on `<main>` elements to ensure consistent background across all pages
 
 ### Components
 

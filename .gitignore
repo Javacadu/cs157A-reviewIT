@@ -36,4 +36,9 @@ yarn-error.log*
 next-env.d.ts
 
 # local config (keep locally only)
-~/
+# AI agent related files and directories
+.swarm/
+.opencode/
+.cursor/
+.claude/
+.github/copilot/
