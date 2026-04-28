@@ -144,6 +144,9 @@ export default function Navbar({ user }: NavbarProps) {
             <span className="text-gray-900 font-medium">
               Welcome, {user.username}
             </span>
+            <Link href={`/user/${user.userId}`} className="hover:text-blue-600">
+              Profile
+            </Link>
             <button
               onClick={handleLogout}
               className="text-red-600 hover:text-red-700 font-medium"

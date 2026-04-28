@@ -40,6 +40,10 @@ export interface ReviewWithUser extends Review {
   username: string;
 }
 
+export interface ReviewWithItem extends Review {
+  item_name: string;
+}
+
 export interface ItemWithCategory extends Item {
   category_name: string;
 }
