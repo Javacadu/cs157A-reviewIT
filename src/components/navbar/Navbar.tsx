@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { logout } from "@/lib/actions/authActions";
+import { User, LogOut } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -141,18 +141,24 @@ export default function Navbar({ user }: NavbarProps) {
         </Link>
         {user ? (
           <>
-            <span className="text-gray-900 font-medium">
-              Welcome, {user.username}
-            </span>
-            <Link href={`/user/${user.userId}`} className="hover:text-blue-600">
-              Profile
+            <Link href="/item/new" className="hover:text-blue-600 flex items-center gap-1">
+              <span>Add Item</span>
             </Link>
-            <button
-              onClick={handleLogout}
-              className="text-red-600 hover:text-red-700 font-medium"
-            >
-              Logout
-            </button>
+            <div className="flex items-center gap-3">
+              <Link
+                href={`/user/${user.userId}`}
+                className="flex flex-col items-center hover:text-blue-600"
+              >
+                <User size={18} />
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-red-600 hover:text-red-700 p-1"
+                aria-label="Logout"
+              >
+                <LogOut size={18} />
+              </button>
+            </div>
           </>
         ) : (
           <Link href="/auth" className="hover:text-blue-600">

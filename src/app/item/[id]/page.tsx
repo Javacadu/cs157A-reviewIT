@@ -50,7 +50,7 @@ export default async function ItemPage({ params }: ItemPageProps) {
       )}
       <hr className="mb-8 border-gray-200" />
       <h2 className="mb-4 text-2xl font-semibold">Reviews</h2>
-      <ReviewList itemId={itemId} />
+      <ReviewList itemId={itemId} itemName={item.name} />
     </main>
   );
 }
