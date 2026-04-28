@@ -50,6 +50,7 @@ Config is in `src/app/globals.css` via `@import "tailwindcss"` and CSS custom pr
 - Follow existing patterns in `globals.css` for custom properties (CSS variables)
 - Use CSS custom properties from `@theme inline` for colors: `text-foreground`, `bg-background`
 - Keep responsive design in mind: use `md:`, `lg:` prefixes for larger screens
+- Always add explicit background: use `bg-white` on `<main>` elements to ensure consistent background across all pages
 
 ## Component Rules
 
@@ -81,6 +82,46 @@ export default function Navbar() {
   useEffect(() => { ... }, [pathname]);
 }
 ```
+
+## Ignored Files
+
+AI agent and editor-specific directories are excluded from version control (see `.gitignore`):
+- `.swarm/` — Swarm agent session data, plans, evidence
+- `.opencode/` — Opencode agent data
+- `.cursor/` — Cursor editor data
+- `.claude/` — Claude agent data
+- `.github/copilot/` — GitHub Copilot data
+
+## Common Workflows
+
+### Adding a New Page
+1. Create `src/app/<route>/page.tsx` (Server Component by default)
+2. Add the route to the Navbar if it needs to be accessible from the nav
+3. Use `bg-white` on the `<main>` element for consistent background
+4. Run `npm run lint` before committing
+
+### Adding a New Server Action
+1. Create or update files in `src/lib/actions/` (mark file with `"use server"`)
+2. Use the `sql` template tag from `@/lib/db` for database queries
+3. Revalidate paths with `revalidatePath()` from `next/cache` after mutations
+
+### Adding a New Component
+1. Create in `src/components/<feature>/ComponentName.tsx`
+2. Default to Server Component; add `"use client"` only if interactivity is needed
+3. Export as default: `export default function ComponentName()`
+4. Use `import type` for type-only imports
+
+### Database Changes
+1. Update `src/lib/db/schema.sql` with schema changes
+2. Run migrations manually against the database (no migration tool configured)
+3. Update `src/types/index.ts` with new/changed types
+4. Update Server Actions in `src/lib/actions/` to match schema changes
+
+### Git Workflow
+1. Check status: `git status`
+2. Stage changes: `git add <files>` (never commit `.env.local` or AI agent dirs)
+3. Commit: `git commit -m "descriptive message"`
+4. Push: `git push` (only when explicitly asked)
 
 ## Missing features (not yet implemented)
 

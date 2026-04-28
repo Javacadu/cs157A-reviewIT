@@ -16,8 +16,8 @@ export default async function RootLayout({
   const session = await getSession();
 
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col font-sans">
+    <html lang="en" className="h-full antialiased bg-white">
+      <body className="min-h-screen flex flex-col font-sans bg-white">
         <Navbar user={session} />
         {children}</body>
     </html>

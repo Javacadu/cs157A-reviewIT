@@ -34,7 +34,7 @@ export default async function ItemPage({ params }: ItemPageProps) {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
+    <main className="mx-auto max-w-3xl px-4 py-10 bg-white">
       <h1 className="mb-2 text-3xl font-bold">{item.name}</h1>
       <div className="mb-4 flex items-center gap-3 text-sm text-gray-500">
         <span className="rounded-full bg-blue-100 px-3 py-1 text-blue-700">
