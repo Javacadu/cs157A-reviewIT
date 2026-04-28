@@ -42,3 +42,8 @@ next-env.d.ts
 .cursor/
 .claude/
 .github/copilot/
+
+# Local AI agent files
+AGENTS.md
+SWARM_PLAN.md
+SWARM_PLAN.json
