@@ -14,11 +14,14 @@ export interface CreateItemInput {
   name: string;
   description?: string;
   categoryId: number;
+  rating: number;
+  reviewTitle: string;
 }
 
 export interface CreateItemSuccess {
   success: true;
   itemId: number;
+  isNewItem: boolean;
 }
 
 export interface CreateItemFailure {
@@ -48,9 +51,8 @@ export async function createItem(
     return { success: false, error: "You must be logged in to create an item" };
   }
 
-  const { name, description, categoryId } = input;
+  const { name, description, categoryId, rating, reviewTitle } = input;
 
-  // Validate required fields
   if (!name || name.trim().length === 0) {
     return { success: false, error: "Name is required" };
   }
@@ -59,7 +61,14 @@ export async function createItem(
     return { success: false, error: "Category is required" };
   }
 
-  // Verify category exists
+  if (rating === undefined || rating < 0 || rating > 5) {
+    return { success: false, error: "Rating is required and must be between 0 and 5" };
+  }
+
+  if (!reviewTitle || reviewTitle.trim().length === 0) {
+    return { success: false, error: "Review title is required" };
+  }
+
   const [category] = await sql<Category[]>`
     SELECT id FROM categories WHERE id = ${categoryId}
   `;
@@ -68,27 +77,36 @@ export async function createItem(
     return { success: false, error: "Invalid category" };
   }
 
-  // Check if item with same name already exists
   const [existing] = await sql<Item[]>`
     SELECT id FROM items WHERE LOWER(name) = LOWER(${name.trim()})
   `;
 
+  let itemId: number;
+  let isNewItem = false;
+
   if (existing) {
-    return { success: false, error: "An item with this name already exists" };
+    itemId = existing.id;
+  } else {
+    const [newItem] = await sql<Item[]>`
+      INSERT INTO items (name, description, category_id, created_by)
+      VALUES (${name.trim()}, ${description?.trim() || null}, ${categoryId}, ${session.userId})
+      RETURNING id
+    `;
+    itemId = newItem.id;
+    isNewItem = true;
   }
 
-  // Create the item
-  const [newItem] = await sql<Item[]>`
-    INSERT INTO items (name, description, category_id, created_by)
-    VALUES (${name.trim()}, ${description?.trim() || null}, ${categoryId}, ${session.userId})
-    RETURNING id
+  await sql`
+    INSERT INTO reviews (item_id, user_id, rating, title, body)
+    VALUES (${itemId}, ${session.userId}, ${rating}, ${reviewTitle.trim()}, ${description?.trim() || null})
   `;
 
   revalidatePath("/search");
 
   return {
     success: true,
-    itemId: newItem.id,
+    itemId,
+    isNewItem,
   };
 }
 
@@ -102,4 +120,35 @@ export async function getCategories(): Promise<Category[]> {
     FROM categories
     ORDER BY name
   `;
+}
+
+/**
+ * Create a new category or return existing one if found (case-insensitive).
+ * Normalizes input: trims whitespace and compares case-insensitively.
+ */
+export async function createCategory(name: string): Promise<Category> {
+  const sql = getSql();
+  const normalizedName = name.trim();
+
+  if (!normalizedName || normalizedName.length === 0) {
+    throw new Error("Category name is required");
+  }
+
+  const [existing] = await sql<Category[]>`
+    SELECT id, name, description, created_at
+    FROM categories
+    WHERE LOWER(TRIM(name)) = LOWER(${normalizedName})
+  `;
+
+  if (existing) {
+    return existing;
+  }
+
+  const [category] = await sql<Category[]>`
+    INSERT INTO categories (name)
+    VALUES (${normalizedName})
+    RETURNING id, name, description, created_at
+  `;
+
+  return category;
 }

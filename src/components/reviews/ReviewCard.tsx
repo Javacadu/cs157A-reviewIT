@@ -1,3 +1,6 @@
+"use client";
+
+import { Star } from "lucide-react";
 import type { ReviewWithUser } from "@/types";
 
 interface ReviewCardProps {
@@ -11,16 +14,24 @@ export default function ReviewCard({ review }: ReviewCardProps) {
         <span className="text-sm font-medium text-gray-700">
           {review.username}
         </span>
-        <span
-          className="flex items-center gap-0.5 text-yellow-500 text-sm"
+        <div
+          className="flex items-center gap-0.5"
           role="img"
           aria-label={`Rated ${review.rating} out of 5 stars`}
         >
-          <span aria-hidden="true">
-            {"★".repeat(review.rating)}
-            {"☆".repeat(5 - review.rating)}
-          </span>
-        </span>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              size={14}
+              className={
+                star <= review.rating
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "text-gray-300"
+              }
+              aria-hidden="true"
+            />
+          ))}
+        </div>
       </div>
       <h3 className="mt-2 font-semibold text-gray-900">{review.title}</h3>
       {review.body && (

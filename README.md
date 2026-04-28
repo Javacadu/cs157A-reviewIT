@@ -1,6 +1,6 @@
 # ReviewIT
 
-A universal review platform where users can rate, review, and categorize anything. Browse items, read reviews, and share your thoughts.
+A universal review platform where users can rate, review, and categorize anything.
 
 ## Tech Stack
 
@@ -14,115 +14,76 @@ A universal review platform where users can rate, review, and categorize anythin
 
 - Node.js 18+
 - PostgreSQL (local or cloud)
-## Setup(setup script)
 
-Run the setup script to get started:
+## Quick Start
+
 ```bash
+# Clone the repo
+git clone <repo-url>
+cd reviewIT
+
+# Run setup script
 ./scripts/setup.sh
-This script:
-- Verifies Node.js 18+ is installed
-- Checks for PostgreSQL client
-- Creates .env.local from .env.local.example
-- Installs npm dependencies
-- Prints next steps for database setup
-```
 
-## Setup(manual)
-
-### 1. Clone and install
-
-```bash
+# Or manual setup:
 npm install
-```
-
-### 2. Configure environment
-
-```bash
 cp .env.local.example .env.local
-```
-
-Edit `.env.local` and set your `DATABASE_URL`:
-
-```env
-DATABASE_URL=postgresql://username:password@localhost:5432/reviewit
-```
-
-### 3. Create database
-
-If PostgreSQL is running locally:
-
-```bash
-createdb reviewit
-```
-
-Or use your preferred DB tool (pgAdmin, TablePlus, DBeaver, etc.).
-
-### 4. Initialize schema
-
-```bash
+# Edit .env.local with your DATABASE_URL
 psql $DATABASE_URL -f src/lib/db/schema.sql
-```
-
-### 5. Run
-
-```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
 
+## Features
+
+- **Browse & Search** - Search items by name or description with predictive autocomplete
+- **View Reviews** - See all reviews for any item with star ratings
+- **Create Review** - Add reviews with 0-5 star ratings, title, and description
+- **Predictive Search** - When creating a review, search for existing items first
+- **Categories** - Create new categories on-the-fly when adding reviews (case-insensitive dedup)
+- **Multiple Reviews** - Users can review the same item multiple times
+
 ## Commands
 
 ```bash
 npm run dev     # Development server
-npm run build  # Production build
+npm run build   # Production build
 npm run start  # Production server
 npm run lint   # ESLint
 ```
-
-## Troubleshooting
-
-**`DATABASE_URL environment variable is not set`**
-- Ensure `.env.local` exists and contains a valid `DATABASE_URL`
-
-**Connection refused on port 5432**
-- PostgreSQL is not running. Start it: `brew services start postgresql` (macOS) or `sudo systemctl start postgresql` (Linux)
-
-**npm command not found**
-- Install Node.js from [nodejs.org](https://nodejs.org) or use [nvm](https://github.com/nvm-sh/nvm)
-
-**Module not found errors**
-- Delete `node_modules` and `package-lock.json`, then re-run `npm install`
-
-**Database does not exist**
-- Run `createdb reviewit` or create the database in your DB tool
 
 ## Project Structure
 
 ```
 src/
   app/           # Next.js pages and layouts
+    item/        # Item pages (view, create review)
+    search/      # Search page
   components/    # React components
+    ui/          # Reusable UI components
+    reviews/     # Review components
+    search/      # Search components
   lib/
     actions/     # Server Actions
     db/          # Database connection and schema
   types/         # TypeScript types
 ```
 
+## Troubleshooting
+
+**DATABASE_URL not set**
+- Ensure `.env.local` exists with valid `DATABASE_URL`
+
+**Connection refused on port 5432**
+- PostgreSQL not running: `brew services start postgresql` (macOS)
+
+**Module not found**
+- Delete `node_modules` and `package-lock.json`, then run `npm install`
+
+**Database does not exist**
+- Run `createdb reviewit` or create via your DB tool
+
 ## Contributing
 
-See [CONVENTIONS.md](./CONVENTIONS.md) for coding standards, component patterns, and development guidelines.
-
-## Features
-
-- Search items by name or description
-- View item details and reviews
-- Create, update, and delete reviews (via Server Actions)
-
-## Status
-
-- [x] Search and browse items
-- [x] Review display and CRUD
-- [ ] User authentication
-- [ ] Item creation
-- [ ] Category browsing
+See [CONVENTIONS.md](./CONVENTIONS.md) for coding standards and component patterns.
