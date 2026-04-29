@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS items (
   id          SERIAL PRIMARY KEY,
   name        VARCHAR(255) NOT NULL,
   description TEXT,
-  category_id INTEGER      NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
+  category_id INTEGER      REFERENCES categories(id) ON DELETE SET NULL,
   created_by  INTEGER      NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
   created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW()

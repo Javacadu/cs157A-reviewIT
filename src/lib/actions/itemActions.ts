@@ -57,10 +57,6 @@ export async function createItem(
     return { success: false, error: "Name is required" };
   }
 
-  if (!categoryId || categoryId <= 0) {
-    return { success: false, error: "Category is required" };
-  }
-
   if (rating === undefined || rating < 0 || rating > 5) {
     return { success: false, error: "Rating is required and must be between 0 and 5" };
   }
@@ -69,12 +65,14 @@ export async function createItem(
     return { success: false, error: "Review title is required" };
   }
 
-  const [category] = await sql<Category[]>`
-    SELECT id FROM categories WHERE id = ${categoryId}
-  `;
+  if (categoryId) {
+    const [category] = await sql<Category[]>`
+      SELECT id FROM categories WHERE id = ${categoryId}
+    `;
 
-  if (!category) {
-    return { success: false, error: "Invalid category" };
+    if (!category) {
+      return { success: false, error: "Invalid category" };
+    }
   }
 
   const [existing] = await sql<Item[]>`
