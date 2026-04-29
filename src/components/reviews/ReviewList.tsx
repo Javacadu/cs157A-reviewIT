@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getReviewsByItemId } from "@/lib/actions/reviewActions";
+import { getSession } from "@/lib/auth/session";
 import ReviewCard from "./ReviewCard";
 import AddReviewButton from "./AddReviewButton";
 
@@ -29,6 +30,8 @@ function PlusIcon() {
 
 export default async function ReviewList({ itemId, itemName }: ReviewListProps) {
   const reviews = await getReviewsByItemId(itemId);
+  const session = await getSession();
+  const currentUserId = session?.userId ?? null;
 
   if (reviews.length === 0) {
     return (
@@ -49,7 +52,7 @@ export default async function ReviewList({ itemId, itemName }: ReviewListProps) 
       <AddReviewButton itemName={itemName || ""} />
       <ul className="space-y-4">
         {reviews.map((review) => (
-          <ReviewCard key={review.id} review={review} />
+          <ReviewCard key={review.id} review={review} currentUserId={currentUserId} />
         ))}
       </ul>
     </div>
