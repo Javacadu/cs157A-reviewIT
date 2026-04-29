@@ -13,7 +13,7 @@ import type { Item, Category } from "@/types";
 export interface CreateItemInput {
   name: string;
   description?: string;
-  categoryId: number;
+  categoryId?: number;
   rating: number;
   reviewTitle: string;
 }
@@ -87,7 +87,7 @@ export async function createItem(
   } else {
     const [newItem] = await sql<Item[]>`
       INSERT INTO items (name, description, category_id, created_by)
-      VALUES (${name.trim()}, ${description?.trim() || null}, ${categoryId}, ${session.userId})
+      VALUES (${name.trim()}, ${description?.trim() || null}, ${categoryId ?? null}, ${session.userId})
       RETURNING id
     `;
     itemId = newItem.id;

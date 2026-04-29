@@ -65,7 +65,7 @@ export default function NewItemForm({ categories, initialName }: NewItemFormProp
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    let categoryId = Number(formData.get("categoryId")) || null;
+    let categoryId: number | undefined = Number(formData.get("categoryId")) || undefined;
     const categoryNameValue = formData.get("categoryName") as string;
 
     if (categoryMode === "new") {
