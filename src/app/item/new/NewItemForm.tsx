@@ -65,7 +65,7 @@ export default function NewItemForm({ categories, initialName }: NewItemFormProp
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    let categoryId = Number(formData.get("categoryId"));
+    let categoryId = Number(formData.get("categoryId")) || null;
     const categoryNameValue = formData.get("categoryName") as string;
 
     if (categoryMode === "new") {
@@ -174,8 +174,8 @@ export default function NewItemForm({ categories, initialName }: NewItemFormProp
               id="categoryId"
               name="categoryId"
               label="Category"
-              required
               options={[
+                { value: "", label: "No category" },
                 ...categoryOptions,
                 { value: "__new__", label: "+ Add new category" },
               ]}
