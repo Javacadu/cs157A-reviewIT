@@ -1,6 +1,7 @@
 "use server";
 
 import getSql from "@/lib/db";
+import { getSession } from "@/lib/auth/session";
 import type { Review, ReviewWithUser } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -66,19 +67,25 @@ export async function getReviewsByItemId(
 /**
  * Update an existing review.
  * Only fields provided in the input object will be updated.
+ * If userId is null, uses the session userId.
  */
 export async function updateReview(
   reviewId: number,
-  userId: number,
+  userId: number | null,
   input: UpdateReviewInput
 ): Promise<Review> {
   const sql = getSql();
+
+  const userIdToUse = userId ?? (await getSession())?.userId;
+  if (!userIdToUse) {
+    throw new Error("You must be logged in to update a review");
+  }
 
   const [updated] = await sql<Review[]>`
     UPDATE reviews
     SET ${sql(input)}, updated_at = NOW()
     WHERE id = ${reviewId}
-      AND user_id = ${userId}
+      AND user_id = ${userIdToUse}
     RETURNING *
   `;
 
