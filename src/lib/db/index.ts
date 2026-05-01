@@ -1,22 +1,46 @@
-import postgres from "postgres";
+import postgres, { type Sql } from "postgres";
+import { logQuery } from "./logger";
 
-/**
- * Singleton postgres.js connection pool.
- *
- * DATABASE_URL is validated lazily (on first query) so that this module can be
- * imported during build-time static analysis without requiring the env variable.
- * The variable IS required at runtime — any Server Action or Server Component
- * that touches the database will throw a descriptive error if it is missing.
- *
- * In development, Next.js hot-reloads modules, so we attach the pool to the
- * Node.js global object to prevent creating a new pool on every reload.
- */
 declare global {
   var _pgPool: ReturnType<typeof postgres> | undefined;
+  var _sqlProxy: Sql | undefined;
+}
+
+function wrapSql(sql: Sql): Sql {
+  const original = sql as typeof sql & { _wrapped?: boolean };
+  if (original._wrapped) return original;
+  original._wrapped = true;
+
+  const proxy = new Proxy(sql, {
+    apply(target, thisArg, args) {
+      const start = performance.now();
+      const result = Reflect.apply(target, thisArg, args);
+      
+      if (result instanceof Promise) {
+        return result.then((data: unknown) => {
+          const duration = performance.now() - start;
+          const rows = Array.isArray(data) ? data.length : (data ? 1 : 0);
+          logQuery(args[0], duration, rows);
+          return data;
+        }) as typeof result;
+      }
+
+      const duration = performance.now() - start;
+      logQuery(args[0], duration, 0);
+      return result;
+    },
+  });
+
+  return proxy as typeof sql;
 }
 
 export function getSql(): ReturnType<typeof postgres> {
-  if (globalThis._pgPool) return globalThis._pgPool;
+  if (globalThis._pgPool) {
+    if (!globalThis._sqlProxy) {
+      globalThis._sqlProxy = wrapSql(globalThis._pgPool);
+    }
+    return globalThis._sqlProxy;
+  }
 
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
@@ -30,9 +54,10 @@ export function getSql(): ReturnType<typeof postgres> {
 
   if (process.env.NODE_ENV !== "production") {
     globalThis._pgPool = pool;
+    globalThis._sqlProxy = wrapSql(pool);
   }
 
-  return pool;
+  return globalThis._sqlProxy || pool;
 }
 
 export default getSql;

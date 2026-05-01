@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/navbar/Navbar";
+import SqlTerminal from "@/components/observability/SqlTerminal";
 import { getSession } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
@@ -19,7 +20,9 @@ export default async function RootLayout({
     <html lang="en" className="h-full antialiased bg-white">
       <body className="min-h-screen flex flex-col font-sans bg-white">
         <Navbar user={session} />
-        {children}</body>
+        {children}
+        <SqlTerminal />
+      </body>
     </html>
   );
 }
