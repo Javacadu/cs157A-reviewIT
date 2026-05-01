@@ -46,7 +46,7 @@ export default function ReviewCard({ review, currentUserId }: ReviewCardProps) {
     setError(null);
 
     try {
-      const updated = await updateReview(currentReview. id, currentUserId, {
+      const updated = await updateReview(currentReview.id, currentUserId ?? null, {
         rating: editRating,
         title: editTitle,
         body: editBody || undefined,

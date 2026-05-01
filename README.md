@@ -150,6 +150,7 @@ npm run dev
 - **Categories** - Create new categories on-the-fly when adding reviews (case-insensitive dedup)
 - **Multiple Reviews** - Users can review the same item multiple times
 - **User Profile** - View your reviews and items at `/user/[id]`
+- **SQL Observability Terminal** - Live database query viewer for demos (see below)
 
 ---
 
@@ -224,6 +225,50 @@ psql $DATABASE_URL -f src/lib/db/schema.sql
 
 ---
 
-## Contributing
+## SQL Observability Terminal
 
-See [CONVENTIONS.md](./CONVENTIONS.md) for coding standards and component patterns.
+A live database query viewer — perfect for demonstrations, debugging, and teaching database concepts.
+
+### Enable Demo Mode
+
+Append `?demo=true` to any URL (only needed once):
+
+```
+http://localhost:3000/search?demo=true
+http://localhost:3000/item/1?demo=true
+```
+
+### How It Works
+
+- When `?demo=true` is present, a cookie is set and the terminal appears (bottom-right)
+- **Persists across pages** — Navigate normally, the `?demo=true` param is auto-added to URLs
+- **Persists on reload** — Cookie keeps demo mode active even after browser refresh
+- All database queries are intercepted and displayed in real-time
+- Each query shows: operation type, table name, duration, and row count
+- Queries are color-coded:
+  - 🔵 **SELECT** - Data retrieval
+  - 🟢 **INSERT** - Data creation
+  - 🟠 **UPDATE** - Data modification
+  - 🔴 **DELETE** - Data removal
+
+### Usage for Presentations
+
+1. Visit any page with `?demo=true` (e.g., `/search?demo=true`)
+2. The terminal appears — navigate freely, it persists
+3. Perform actions as normal — the audience watches SQL execute in real-time
+4. To disable: click the **Off** button in the terminal header
+
+### Demo Mode Controls
+
+- **Off button** — Disables demo mode, removes cookie, hides terminal
+- **Toggle** — Click the terminal header to collapse/expand
+- **Clear** — Button to clear the log display
+- **Click to expand** — Click any log entry to see full SQL
+
+### Production Safety
+
+- **Default: OFF** — Zero overhead when not in demo mode
+- Terminal only appears when:
+  - `?demo=true` is in the URL, OR
+  - The `demo_mode` cookie is set
+- Remove the cookie or click "Off" to disable completely
