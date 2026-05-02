@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import getSql from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import type { Review, ReviewWithUser } from "@/types";
@@ -118,4 +120,6 @@ export async function deleteReview(
       `Review ${reviewId} not found or you do not have permission to delete it.`
     );
   }
+
+  revalidatePath(`/item/${reviewId}`);
 }
