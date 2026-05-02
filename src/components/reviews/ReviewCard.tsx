@@ -39,6 +39,7 @@ export default function ReviewCard({ review, currentUserId }: ReviewCardProps) {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete review");
       setLoading(false);
+      setIsDeleted(false);
     }
   }
 
@@ -183,6 +184,7 @@ export default function ReviewCard({ review, currentUserId }: ReviewCardProps) {
       {currentReview.body && (
         <p className="mt-1 text-sm text-gray-600">{currentReview.body}</p>
       )}
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
       <p className="mt-2 text-xs text-gray-400">
         {new Date(currentReview.created_at).toLocaleDateString()}
       </p>
