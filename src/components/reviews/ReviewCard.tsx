@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Pencil, X, Check } from "lucide-react";
-import { updateReview } from "@/lib/actions/reviewActions";
+import { Star, Pencil, X, Check, Trash2 } from "lucide-react";
+import { updateReview, deleteReview } from "@/lib/actions/reviewActions";
 import type { ReviewWithUser } from "@/types";
 import StarRating from "@/components/ui/StarRating";
 import TextInput from "@/components/ui/TextInput";
@@ -17,6 +17,7 @@ export default function ReviewCard({ review, currentUserId }: ReviewCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDeleted, setIsDeleted] = useState(false);
 
   const [currentReview, setCurrentReview] = useState(review);
   const [editRating, setEditRating] = useState(review.rating);
@@ -24,6 +25,23 @@ export default function ReviewCard({ review, currentUserId }: ReviewCardProps) {
   const [editBody, setEditBody] = useState(review.body || "");
 
   const isOwner = currentUserId === currentReview.user_id;
+
+  async function handleDelete() {
+    if (!currentUserId) return;
+    if (!confirm("Are you sure you want to delete this review?")) return;
+    
+    setLoading(true);
+    setError(null);
+
+    try {
+      await deleteReview(currentReview.id, currentUserId);
+      setIsDeleted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete review");
+      setLoading(false);
+      setIsDeleted(false);
+    }
+  }
 
   function handleEdit() {
     if (!currentUserId) return;
@@ -57,6 +75,10 @@ export default function ReviewCard({ review, currentUserId }: ReviewCardProps) {
       setError(err instanceof Error ? err.message : "Failed to update review");
       setLoading(false);
     }
+  }
+
+  if (isDeleted) {
+    return null;
   }
 
   if (isEditing) {
@@ -117,14 +139,26 @@ export default function ReviewCard({ review, currentUserId }: ReviewCardProps) {
         </span>
         <div className="flex items-center gap-2">
           {isOwner && (
-            <button
-              type="button"
-              onClick={handleEdit}
-              className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-              title="Edit review"
-            >
-              <Pencil size={14} />
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={handleEdit}
+                className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                title="Edit review"
+                disabled={loading}
+              >
+                <Pencil size={14} />
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="rounded p-1 text-gray-400 hover:bg-red-100 hover:text-red-600"
+                title="Delete review"
+                disabled={loading}
+              >
+                <Trash2 size={14} />
+              </button>
+            </>
           )}
           <div
             className="flex items-center gap-0.5"
@@ -150,6 +184,7 @@ export default function ReviewCard({ review, currentUserId }: ReviewCardProps) {
       {currentReview.body && (
         <p className="mt-1 text-sm text-gray-600">{currentReview.body}</p>
       )}
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
       <p className="mt-2 text-xs text-gray-400">
         {new Date(currentReview.created_at).toLocaleDateString()}
       </p>

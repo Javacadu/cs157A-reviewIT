@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import getSql from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
 import type { Review, ReviewWithUser } from "@/types";
@@ -101,12 +103,23 @@ export async function updateReview(
 /**
  * Delete a review.
  * The userId guard ensures users can only delete their own reviews.
+ * Returns the itemId so the caller can revalidate the correct path.
  */
 export async function deleteReview(
   reviewId: number,
   userId: number
-): Promise<void> {
+): Promise<number> {
   const sql = getSql();
+
+  // Get item_id first so we can revalidate the correct page
+  const [review] = await sql<{ item_id: number }[]>`
+    SELECT item_id FROM reviews WHERE id = ${reviewId}
+  `;
+
+  if (!review) {
+    throw new Error(`Review ${reviewId} not found`);
+  }
+
   const result = await sql`
     DELETE FROM reviews
     WHERE id = ${reviewId}
@@ -118,4 +131,7 @@ export async function deleteReview(
       `Review ${reviewId} not found or you do not have permission to delete it.`
     );
   }
+
+  revalidatePath(`/item/${review.item_id}`);
+  return review.item_id;
 }
