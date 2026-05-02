@@ -12,121 +12,152 @@ A universal review platform where users can rate, review, and categorize anythin
 
 ---
 
-## Step-by-Step Installation (macOS)
+## Database Schema
 
-### Step 1: Install Homebrew (if not installed)
+The database is normalized to BCNF with four core tables:
+
+| Table | Description |
+|-------|-------------|
+| `users` | User accounts with email, username, and bcrypt password hashing |
+| `categories` | Item categories (unique, case-insensitive) |
+| `items` | Reviewable items with name, description, and category |
+| `reviews` | User reviews with 0-5 star rating, title, and body |
+
+Foreign key relationships:
+- `items.created_by` → `users.id`
+- `items.category_id` → `categories.id`
+- `reviews.item_id` → `items.id` (CASCADE delete)
+- `reviews.user_id` → `users.id` (CASCADE delete)
+
+---
+
+## Database Actions (Server Actions)
+
+All database operations are implemented as Next.js Server Actions in `src/lib/actions/`:
+
+### Auth Actions (`authActions.ts`)
+
+| Action | SQL Operations |
+|--------|----------------|
+| `register()` | `SELECT` to check username/email uniqueness → `INSERT` into `users` |
+| `login()` | `SELECT` user by username → `bcrypt.compare()` password → set session cookie |
+| `logout()` | Clear session cookie (no DB operation) |
+
+### Search Actions (`searchActions.ts`)
+
+| Action | SQL Operations |
+|--------|----------------|
+| `getSearchSuggestions()` | `SELECT` from `items` + `JOIN` categories with weighted relevance ranking (exact > prefix > contains; name matches prioritized over description) |
+
+### Item Actions (`itemActions.ts`)
+
+| Action | SQL Operations |
+|--------|----------------|
+| `createItem()` | `SELECT` to check existing item (case-insensitive) → `INSERT` into `items` → `INSERT` into `reviews` |
+| `getCategories()` | `SELECT` all from `categories` ordered by name |
+| `createCategory()` | `SELECT` to check existing (case-insensitive) → `INSERT` into `categories` if new |
+
+### Review Actions (`reviewActions.ts`)
+
+| Action | SQL Operations |
+|--------|----------------|
+| `createReview()` | `INSERT` into `reviews` |
+| `getReviewsByItemId()` | `SELECT` from `reviews` + `JOIN` users (returns reviewer username) |
+| `updateReview()` | `UPDATE` on `reviews` with dynamic column set (rating, title, body) |
+| `deleteReview()` | `SELECT` item_id → `DELETE` from `reviews` (user ownership enforced) |
+
+---
+
+## Local Setup
+
+### Prerequisites
+
+- **Node.js** 18+ (recommended: 20 LTS)
+- **PostgreSQL** 14+
+
+### Step-by-Step (macOS)
+
+#### 1. Install Homebrew (if needed)
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-### Step 2: Install Node.js
+#### 2. Install Node.js
 
 ```bash
-# Using Homebrew
 brew install node
-
-# Or using nvm (recommended)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-nvm install 20
-nvm use 20
+# Or use nvm: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 ```
 
-Verify:
-```bash
-node -v  # Should show v20.x.x
-```
-
-### Step 3: Install PostgreSQL
+#### 3. Install and Start PostgreSQL
 
 ```bash
 brew install postgresql
-```
-
-### Step 4: Start PostgreSQL
-
-```bash
 brew services start postgresql
 ```
 
-Verify:
-```bash
-psql -v  # Should show version
-```
-
-### Step 5: Create Database
+#### 4. Create Database
 
 ```bash
 createdb reviewit
-
-# If that fails, try:
-psql -c "CREATE DATABASE reviewit;" -U $(whoami)
+# Or: psql -c "CREATE DATABASE reviewit;" -U $(whoami)
 ```
 
-### Step 6: Clone the Project
+#### 5. Clone and Install
 
 ```bash
 git clone <repo-url>
 cd reviewIT
-```
-
-### Step 7: Install Dependencies
-
-```bash
 npm install
 ```
 
-### Step 8: Configure Environment
+#### 6. Configure Environment
 
 ```bash
 cp .env.local.example .env.local
 ```
 
-Edit `.env.local` in your editor:
+Edit `.env.local`:
 
 ```env
 DATABASE_URL=postgresql://username:password@localhost:5432/reviewit
 ```
 
-**Getting your PostgreSQL username:**
+Find your PostgreSQL username:
 ```bash
-whoami  # Use this as username
-
-# Or check PostgreSQL roles:
-psql -c "\du"
+whoami
+# Or: psql -c "\du"
 ```
 
-**If using peer authentication (macOS default):**
+macOS peer auth (no password):
 ```env
 DATABASE_URL=postgresql://localhost:5432/reviewit
 ```
 
-### Step 9: Initialize Database Schema
+#### 7. Initialize Database
 
 ```bash
 psql $DATABASE_URL -f src/lib/db/schema.sql
 ```
 
-Verify tables created:
+Verify:
 ```bash
 psql $DATABASE_URL -c "\dt"
+# Expected: categories, items, reviews, users
 ```
 
-You should see: `categories`, `items`, `reviews`, `users`
-
-### Step 10: Start the App
+#### 8. Start Development Server
 
 ```bash
 npm run dev
 ```
 
-### Step 11: Verify It Works
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## Quick Start (If You Already Have Prerequisites)
+## Quick Start (Already Have Prerequisites)
 
 ```bash
 git clone <repo-url>
