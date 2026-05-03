@@ -62,37 +62,42 @@ export default function NewItemForm({ categories, initialName }: NewItemFormProp
     setLoading(true);
     setError(null);
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+    try {
+      const form = e.currentTarget;
+      const formData = new FormData(form);
 
-    let categoryId: number | undefined = Number(formData.get("categoryId")) || undefined;
-    const categoryNameValue = formData.get("categoryName") as string;
+      let categoryId: number | undefined = Number(formData.get("categoryId")) || undefined;
+      const categoryNameValue = formData.get("categoryName") as string;
 
-    if (categoryMode === "new") {
-      if (!categoryNameValue || categoryNameValue.trim().length === 0) {
-        setError("Category name is required");
-        setLoading(false);
-        return;
+      if (categoryMode === "new") {
+        if (!categoryNameValue || categoryNameValue.trim().length === 0) {
+          setError("Category name is required");
+          setLoading(false);
+          return;
+        }
+        const category = await createCategory(categoryNameValue);
+        categoryId = category.id;
       }
-      const category = await createCategory(categoryNameValue);
-      categoryId = category.id;
-    }
 
-    const input: CreateItemInput = {
-      name: formData.get("name") as string,
-      description: formData.get("description") as string,
-      categoryId,
-      rating,
-      reviewTitle: formData.get("reviewTitle") as string,
-    };
+      const input: CreateItemInput = {
+        name: formData.get("name") as string,
+        description: formData.get("description") as string,
+        categoryId,
+        rating,
+        reviewTitle: formData.get("reviewTitle") as string,
+      };
 
-    const result = await createItem(input);
+      const result = await createItem(input);
 
-    if (result.success) {
-      window.history.replaceState({}, "", "/");
-      router.push(`/item/${result.itemId}`);
-    } else {
-      setError(result.error);
+      if (result.success) {
+        window.history.replaceState({}, "", "/");
+        router.push(`/item/${result.itemId}`);
+      } else {
+        setError(result.error);
+        setLoading(false);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setLoading(false);
     }
   }
