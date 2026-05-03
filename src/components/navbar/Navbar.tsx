@@ -139,6 +139,9 @@ export default function Navbar({ user }: NavbarProps) {
         <Link href="/search" className="hover:text-blue-600">
           Browse
         </Link>
+        <Link href="/categories" className="hover:text-blue-600">
+          Categories
+        </Link>
         {user ? (
           <>
             <Link href="/item/new" className="hover:text-blue-600 flex items-center gap-1">

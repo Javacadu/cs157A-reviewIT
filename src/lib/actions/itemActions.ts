@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import getSql from "@/lib/db";
 import { getSession } from "@/lib/auth/session";
-import type { Item, Category } from "@/types";
+import type { Item, Category, ItemWithCategory } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -117,6 +117,20 @@ export async function getCategories(): Promise<Category[]> {
     SELECT id, name, description, created_at
     FROM categories
     ORDER BY name
+  `;
+}
+
+/**
+ * Get all items belonging to a specific category.
+ */
+export async function getItemsByCategory(categoryId: number): Promise<ItemWithCategory[]> {
+  const sql = getSql();
+  return sql<ItemWithCategory[]>`
+    SELECT i.*, c.name AS category_name
+    FROM items i
+    JOIN categories c ON c.id = i.category_id
+    WHERE i.category_id = ${categoryId}
+    ORDER BY i.name
   `;
 }
 
