@@ -37,9 +37,9 @@ reviewIT/
 
 ## Dependencies and Required Software
 
-- **Node.js** 18+ (recommended: 20 LTS)
-- **PostgreSQL** 14+
-- **npm** (comes with Node.js)
+- **Node.js**
+- **PostgreSQL** 
+- **npm** 
 
 To verify Node.js is installed:
 ```bash
