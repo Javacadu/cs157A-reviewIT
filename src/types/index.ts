@@ -50,6 +50,6 @@ export interface ItemWithCategory extends Item {
 
 // Full item details with category name and creator username
 export interface ItemWithDetails extends Item {
-  category_name: string;
+  category_name: string | null;
   creator_username: string;
 }

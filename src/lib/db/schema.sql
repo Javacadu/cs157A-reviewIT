@@ -37,3 +37,9 @@ CREATE TABLE IF NOT EXISTS reviews (
   created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS idx_items_name_lower ON items(LOWER(name));
+CREATE INDEX IF NOT EXISTS idx_reviews_item_id ON reviews(item_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_user_id ON reviews(user_id);
+CREATE INDEX IF NOT EXISTS idx_items_category_id ON items(category_id);
+CREATE INDEX IF NOT EXISTS idx_items_created_by ON items(created_by);
