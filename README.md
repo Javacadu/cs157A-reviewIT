@@ -1,4 +1,7 @@
 # ReviewIT - CS157A Course Project
+## Jacob Atanacio (jacob.atanacio@sjsu.edu)
+## Omer Ozgul (omer.ozgul@sjsu.edu)
+
 
 A universal review platform where users can rate, review, and categorize anything.
 
